@@ -1,5 +1,16 @@
 # SOLID DESIGN PRINCIPLES
 
+# We want classes and methods to have single responsabilties
+# High cohesion => to be responsible for only a single thing that ensures that you can reuse them later on
+
+# In this example, this Order class does many things:
+## Adds item to the order
+## Calculate total price
+## Pay the order?
+
+# Issue 1:
+# Handeling the payment should not be part of the order
+
 class Order
   def initialize
     @items = []
