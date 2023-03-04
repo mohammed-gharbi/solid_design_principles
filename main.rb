@@ -1,21 +1,11 @@
 # SOLID DESIGN PRINCIPLES
 
-# We want classes and methods to have single responsabilties
-# High cohesion => to be responsible for only a single thing that ensures that you can reuse them later on
+# We want to write code that is open for extention and closed for modifications
+# So we should be able to extend the exisitng code with new functionality but we should not modify th original code.
 
-# In this example, this Order class does many things:
-## Adds item to the order
-## Calculate total price
-## Pay the order?
-
-# Issue 1:
-# Handeling the payment should not be part of the order
-
-# Solution:
-# Extract the payment method to a separate class
-# Later we might add other payment types: Bitcoin, Apple pay...
-# We can add it the payment class instead of the Order class.
-# Both classes have single responsabilites
+# Issue 2:
+# If we want to add a new payment method, we should modify the PaymentProcesor class
+# This violates the Open/Closed principle
 
 class PaymentProcessor
   def pay_debit(order, security_code)
