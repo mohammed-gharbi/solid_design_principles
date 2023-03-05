@@ -12,8 +12,12 @@
 # It is better, if you have have several specific interfaces as opposed to one general purpose insterface.
 
 # Solution:
-# So it is better to create a separate interfaces for this case.
-# For example, we could add a subclass of PymentProcessor that adds SMS two-factor authentication.
+# We could also solve this issue using composition,
+# which makes more since in this example and considered as a more sophiscticated solution.
+# In this case we add a class SMSAuthorizer which handles the authenticartion
+
+# composition here is more sophistocated than inheritance, it avoid to generate a big inheritance tree,
+# instead we just need to separate the different kind of behaviour.
 
 class PaymentProcessor
   def pay(order, security_code)
@@ -21,29 +25,33 @@ class PaymentProcessor
   end
 end
 
-class PaymentProcessorWithSMS < PaymentProcessor
-  def auth_sms(code)
-    raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+class SMSAuthentication
+  def initialize
+    @authorized = false
+  end
+
+  def verify_code(code)
+    puts "Verifying SMS code #{code}\n"
+    @authorized = true
+  end
+
+  def authorized?
+    @authorized
   end
 end
 
-class DebitPaymentProcessor < PaymentProcessorWithSMS
-  def initialize(security_code)
+class DebitPaymentProcessor < PaymentProcessor
+  def initialize(security_code, authorizer)
     @security_code = security_code
-    @verified = false
+    @authorizer = authorizer
   end
 
   def pay(order)
-    raise Exception, "Not authorized" unless @verified
+    raise Exception, "Not authorized" unless @authorizer.authorized?
 
     puts "Processing debit payment\n"
     puts "Verifying security code #{@security_code}\n"
     order.status = 'paid'
-  end
-
-  def auth_sms(code)
-    puts "Verifying SMS code #{code}\n"
-    @verified = true
   end
 end
 
@@ -59,23 +67,18 @@ class CreditPaymentProcessor < PaymentProcessor
   end
 end
 
-class PaypalPaymentProcessor < PaymentProcessorWithSMS
-  def initialize(email_address)
+class PaypalPaymentProcessor < PaymentProcessor
+  def initialize(email_address, authorizer)
     @email_address = email_address
-    @verified = false
+    @authorizer = authorizer
   end
 
   def pay(order)
-    raise Exception, "Not authorized" unless @verified
+    raise Exception, "Not authorized" unless @authorizer.authorized?
 
     puts "Processing paypal payment\n"
     puts "Verifying email address #{@email_address}\n"
     order.status = 'paid'
-  end
-
-  def auth_sms(code)
-    puts "Verifying SMS code #{code}\n"
-    @verified = true
   end
 end
 
@@ -107,6 +110,8 @@ order.add_item('Keyboard', 1, 50)
 
 puts "#{order.total_price}\n"
 
-processor = PaypalPaymentProcessor.new('test@example.com')
-processor.auth_sms('329850')
+authorizer = SMSAuthentication.new
+authorizer.verify_code('329850')
+
+processor = PaypalPaymentProcessor.new('test@example.com', authorizer)
 processor.pay(order)
