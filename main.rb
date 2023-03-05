@@ -1,23 +1,11 @@
 # SOLID DESIGN PRINCIPLES
 
-# Issue 4:
-# Let's include a two-factor authentication inside the PaymentProcessor class.
+# Issue 5:
+# Dependency inversion principle means:
+# that our classes should depend on abstractions and not in concrete subclasses.
 
-# The issue here is that defining a generic interface like the PaymentProcessor to do multiples things
-# that are not applicable to subclasses.
-
-# This violates the interfae segregation principle, because not all subclasses support two-factor authentication.
-
-# Interface segregation principle says:
-# It is better, if you have have several specific interfaces as opposed to one general purpose insterface.
-
-# Solution:
-# We could also solve this issue using composition,
-# which makes more since in this example and considered as a more sophiscticated solution.
-# In this case we add a class SMSAuthorizer which handles the authenticartion
-
-# composition here is more sophistocated than inheritance, it avoid to generate a big inheritance tree,
-# instead we just need to separate the different kind of behaviour.
+# In this code, this is already an isue, because the PaymentProcessor depending on the sms authorizer
+# what about if we want to add another type of authorizers, like not a robot, we can't use the SMSAuthentication.
 
 class PaymentProcessor
   def pay(order, security_code)
