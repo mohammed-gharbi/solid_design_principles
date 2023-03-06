@@ -4,18 +4,38 @@
 # So we should be able to extend the exisitng code with new functionality but we should not modify th original code.
 
 # Issue 2:
-# If we want to add a new payment method, we should modify the PaymentProcesor class
+# If we want to add a new payment method, we should modify the PaymentProcessor class
 # This violates the Open/Closed principle
 
+# Solution:
+# Create a structure of of classes and subsclasses
+# So we can define a subclass for each new payment method
+
 class PaymentProcessor
-  def pay_debit(order, security_code)
+  def pay(order, security_code)
+    raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+  end
+end
+
+class DebitPaymentProcessor < PaymentProcessor
+    def pay(order, security_code)
     puts "Processing debit payment\n"
     puts "Verifying security code #{security_code}\n"
     order.status = 'paid'
   end
+end
 
-  def pay_credit(order, security_code)
+class CreditPaymentProcessor < PaymentProcessor
+  def pay(order, security_code)
     puts "Processing credit payment\n"
+    puts "Verifying security code #{security_code}\n"
+    order.status = 'paid'
+  end
+end
+
+class PaypalPaymentProcessor < PaymentProcessor
+  def pay(order, security_code)
+    puts "Processing paypal payment\n"
     puts "Verifying security code #{security_code}\n"
     order.status = 'paid'
   end
@@ -49,5 +69,5 @@ order.add_item('Keyboard', 1, 50)
 
 puts "#{order.total_price}\n"
 
-processor = PaymentProcessor.new
-processor.pay_debit(order, '549820')
+processor = DebitPaymentProcessor.new
+processor.pay(order, '549820')
