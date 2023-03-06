@@ -1,15 +1,15 @@
 # SOLID DESIGN PRINCIPLES
 
-# We want to write code that is open for extention and closed for modifications
-# So we should be able to extend the exisitng code with new functionality but we should not modify th original code.
+# liskov substitution
+# if you have objects in a program you should be able to replace these objects with instances of their subclasses
+# withour altering the correctss of the program.
 
 # Issue 2:
-# If we want to add a new payment method, we should modify the PaymentProcessor class
-# This violates the Open/Closed principle
+# Paypal payment does not work with security code, but with email address instead.
+# If we want to fix that without changing anything in the code, 
+# we should make sure that the pay method receive an email address and not a security code.
 
-# Solution:
-# Create a structure of of classes and subsclasses
-# So we can define a subclass for each new payment method
+# This violates the liskov substitution principle because the email address is not kind of security code.
 
 class PaymentProcessor
   def pay(order, security_code)
@@ -36,7 +36,7 @@ end
 class PaypalPaymentProcessor < PaymentProcessor
   def pay(order, security_code)
     puts "Processing paypal payment\n"
-    puts "Verifying security code #{security_code}\n"
+    puts "Verifying email address #{security_code}\n"
     order.status = 'paid'
   end
 end
@@ -69,5 +69,5 @@ order.add_item('Keyboard', 1, 50)
 
 puts "#{order.total_price}\n"
 
-processor = DebitPaymentProcessor.new
-processor.pay(order, '549820')
+processor = PaypalPaymentProcessor.new
+processor.pay(order, 'test@example.com')
