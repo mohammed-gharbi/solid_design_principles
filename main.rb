@@ -1,37 +1,49 @@
 # SOLID DESIGN PRINCIPLES
 
-# Issue 4:
-# Let's include a two-factor authentication inside the PaymentProcessor class.
+# Issue 5:
+# Dependency inversion principle means:
+# that our classes should depend on abstractions and not in concrete subclasses.
 
-# The issue here is that defining a generic interface like the PaymentProcessor to do multiples things
-# that are not applicable to subclasses.
-
-# This violates the interfae segregation principle, because not all subclasses support two-factor authentication.
-
-# Interface segregation principle says:
-# It is better, if you have have several specific interfaces as opposed to one general purpose insterface.
+# In this code, this is already an isue, because the PaymentProcessor depending on the sms authorizer
+# what about if we want to add another type of authorizers, like not a robot, we can't use the SMSAuthentication.
 
 # Solution:
-# We could also solve this issue using composition,
-# which makes more since in this example and considered as a more sophiscticated solution.
-# In this case we add a class SMSAuthorizer which handles the authenticartion
-
-# composition here is more sophistocated than inheritance, it avoid to generate a big inheritance tree,
-# instead we just need to separate the different kind of behaviour.
+# Remove the concrete sms authorizer dependency and use a generic autorizer instead.
 
 class PaymentProcessor
-  def pay(order, security_code)
+  def pay(order)
     raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
   end
 end
 
-class SMSAuthentication
+class Authorizer
+  def authorized?
+    raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+  end
+end
+
+class SMSAuthentication < Authorizer
   def initialize
     @authorized = false
   end
 
   def verify_code(code)
     puts "Verifying SMS code #{code}\n"
+    @authorized = true
+  end
+
+  def authorized?
+    @authorized
+  end
+end
+
+class NotARobot < Authorizer
+  def initialize
+    @authorized = false
+  end
+
+  def not_a_robot
+    puts "Are you a robot? \n"
     @authorized = true
   end
 
@@ -110,8 +122,8 @@ order.add_item('Keyboard', 1, 50)
 
 puts "#{order.total_price}\n"
 
-authorizer = SMSAuthentication.new
-authorizer.verify_code('329850')
+authorizer = NotARobot.new
+authorizer.not_a_robot
 
 processor = PaypalPaymentProcessor.new('test@example.com', authorizer)
 processor.pay(order)
