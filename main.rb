@@ -11,6 +11,10 @@
 
 # This violates the liskov substitution principle because the email address is not kind of security code.
 
+
+# Solution:
+# Remove the security_code dependency from the pay method and setting it in the initializer.
+
 class PaymentProcessor
   def pay(order, security_code)
     raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
@@ -18,25 +22,37 @@ class PaymentProcessor
 end
 
 class DebitPaymentProcessor < PaymentProcessor
-    def pay(order, security_code)
+  def initialize(security_code)
+    @security_code = security_code
+  end
+
+  def pay(order)
     puts "Processing debit payment\n"
-    puts "Verifying security code #{security_code}\n"
+    puts "Verifying security code #{@security_code}\n"
     order.status = 'paid'
   end
 end
 
 class CreditPaymentProcessor < PaymentProcessor
-  def pay(order, security_code)
+  def initialize(security_code)
+    @security_code = security_code
+  end
+
+  def pay(order)
     puts "Processing credit payment\n"
-    puts "Verifying security code #{security_code}\n"
+    puts "Verifying security code #{@security_code}\n"
     order.status = 'paid'
   end
 end
 
 class PaypalPaymentProcessor < PaymentProcessor
-  def pay(order, security_code)
+  def initialize(email_address)
+    @email_address = email_address
+  end
+
+  def pay(order)
     puts "Processing paypal payment\n"
-    puts "Verifying email address #{security_code}\n"
+    puts "Verifying email address #{@email_address}\n"
     order.status = 'paid'
   end
 end
@@ -69,5 +85,5 @@ order.add_item('Keyboard', 1, 50)
 
 puts "#{order.total_price}\n"
 
-processor = PaypalPaymentProcessor.new
-processor.pay(order, 'test@example.com')
+processor = PaypalPaymentProcessor.new('test@example.com')
+processor.pay(order)
