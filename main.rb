@@ -36,7 +36,7 @@ class DebitPaymentProcessor < PaymentProcessor
   end
 
   def auth_sms(code)
-    puts "Verifying SMS code #{sms}\n"
+    puts "Verifying SMS code #{code}\n"
     @verified = true
   end
 end
@@ -72,7 +72,7 @@ class PaypalPaymentProcessor < PaymentProcessor
   end
 
   def auth_sms(code)
-    puts "Verifying SMS code #{sms}\n"
+    puts "Verifying SMS code #{code}\n"
     @verified = true
   end
 end
