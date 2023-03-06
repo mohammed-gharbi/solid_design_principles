@@ -11,17 +11,23 @@
 # Interface segregation principle says:
 # It is better, if you have have several specific interfaces as opposed to one general purpose insterface.
 
+# Solution:
+# So it is better to create a separate interfaces for this case.
+# For example, we could add a subclass of PymentProcessor that adds SMS two-factor authentication.
+
 class PaymentProcessor
   def pay(order, security_code)
     raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
   end
+end
 
+class PaymentProcessorWithSMS < PaymentProcessor
   def auth_sms(code)
     raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
   end
 end
 
-class DebitPaymentProcessor < PaymentProcessor
+class DebitPaymentProcessor < PaymentProcessorWithSMS
   def initialize(security_code)
     @security_code = security_code
     @verified = false
@@ -36,7 +42,7 @@ class DebitPaymentProcessor < PaymentProcessor
   end
 
   def auth_sms(code)
-    puts "Verifying SMS code #{sms}\n"
+    puts "Verifying SMS code #{code}\n"
     @verified = true
   end
 end
@@ -51,13 +57,9 @@ class CreditPaymentProcessor < PaymentProcessor
     puts "Verifying security code #{@security_code}\n"
     order.status = 'paid'
   end
-
-  def auth_sms(code)
-    raise Exception, "Credit card payments don't support SMS code authorization.\n"
-  end
 end
 
-class PaypalPaymentProcessor < PaymentProcessor
+class PaypalPaymentProcessor < PaymentProcessorWithSMS
   def initialize(email_address)
     @email_address = email_address
     @verified = false
@@ -72,7 +74,7 @@ class PaypalPaymentProcessor < PaymentProcessor
   end
 
   def auth_sms(code)
-    puts "Verifying SMS code #{sms}\n"
+    puts "Verifying SMS code #{code}\n"
     @verified = true
   end
 end
@@ -106,4 +108,5 @@ order.add_item('Keyboard', 1, 50)
 puts "#{order.total_price}\n"
 
 processor = PaypalPaymentProcessor.new('test@example.com')
+processor.auth_sms('329850')
 processor.pay(order)
