@@ -28,7 +28,7 @@ class DebitPaymentProcessor < PaymentProcessor
   end
 
   def pay(order)
-    raise Exception("Not authorized") unless verified
+    raise Exception, "Not authorized" unless @verified
 
     puts "Processing debit payment\n"
     puts "Verifying security code #{@security_code}\n"
@@ -53,7 +53,7 @@ class CreditPaymentProcessor < PaymentProcessor
   end
 
   def auth_sms(code)
-    raise Exception("Credit card payments don't support SMS code authorization.\n")
+    raise Exception, "Credit card payments don't support SMS code authorization.\n"
   end
 end
 
@@ -64,7 +64,7 @@ class PaypalPaymentProcessor < PaymentProcessor
   end
 
   def pay(order)
-    raise Exception("Not authorized") unless verified
+    raise Exception, "Not authorized" unless @verified
 
     puts "Processing paypal payment\n"
     puts "Verifying email address #{@email_address}\n"
